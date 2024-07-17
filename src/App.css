@@ -1,0 +1,6 @@
+/* Add this CSS */
+@media (max-width: 530px) {
+  .flex-column-when-small {
+    flex-direction: column !important;
+  }
+}
