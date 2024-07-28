@@ -45,7 +45,6 @@ const App = () => {
     try {
       const contactsRef = collection(db, "contacts");
       let q;
-
       if (page === 1) {
         q = query(contactsRef, orderBy("name"), limit(itemsPerPage));
       } else {
@@ -65,30 +64,34 @@ const App = () => {
         );
       }
 
-      const snapshot = await getDocs(q);
+      const data = onSnapshot(q,(snapshot)=>{
 
-      const contactLists = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+        const contactLists = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+  
+        setContacts(contactLists);
+        setAllContacts(contactLists)
+  
+        if (snapshot.docs.length > 0) {
+          setFirstVisible(snapshot.docs[0]);
+          setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+  
+          const newPageSnapshots = [...pageSnapshots];
+          newPageSnapshots[page - 1] = {
+            first: snapshot.docs[0],
+            last: snapshot.docs[snapshot.docs.length - 1]
+          };
+          setPageSnapshots(newPageSnapshots);
+          console.log("pagesnapshots is ",newPageSnapshots);
+          console.log("contact length is ",contactLists.length);
+          console.log("contact list is ",contactLists);
+        }
 
-      setContacts(contactLists);
-      setAllContacts(contactLists)
+      })
+      return data;
 
-      if (snapshot.docs.length > 0) {
-        setFirstVisible(snapshot.docs[0]);
-        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-
-        const newPageSnapshots = [...pageSnapshots];
-        newPageSnapshots[page - 1] = {
-          first: snapshot.docs[0],
-          last: snapshot.docs[snapshot.docs.length - 1]
-        };
-        setPageSnapshots(newPageSnapshots);
-        console.log("pagesnapshots is ",newPageSnapshots);
-        console.log("contact length is ",contactLists.length);
-        console.log("contact list is ",contactLists);
-      }
     } catch (error) {
       console.error("Error fetching contacts: ", error);
     }
@@ -178,4 +181,5 @@ const App = () => {
 };
 
 export default App;
+
 
